@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@reach/router": "^1.2.1",
     "@vx/axis": "^0.0.179",
     "@vx/gradient": "^0.0.165",
     "@vx/group": "^0.0.170",
@@ -12,6 +13,7 @@
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-scripts": "2.1.1",
+    "styled-components": "^4.0.3",
     "vx": "^0.0.1"
   },
   "scripts": {

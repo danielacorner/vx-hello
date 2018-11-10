@@ -9,7 +9,7 @@ import { extent, max } from 'd3-array';
 
 import { appleStock } from '@vx/mock-data';
 
-const Chart = props => {
+const BarChart = props => {
   // mock data
   const data = appleStock;
 
@@ -84,4 +84,4 @@ const Chart = props => {
   return chart;
 };
 
-export default Chart;
+export default BarChart;
