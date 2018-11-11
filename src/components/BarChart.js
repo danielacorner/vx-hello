@@ -1,87 +1,89 @@
 import React from 'react';
 import { AxisLeft, AxisBottom } from '@vx/axis';
-import { LinearGradient, GradientOrangeRed } from '@vx/gradient';
+import { GradientOrangeRed } from '@vx/gradient';
 import { Group } from '@vx/group';
-import { browserUsage, genDateValue } from '@vx/mock-data';
-import { scaleTime, scaleLinear } from '@vx/scale';
-import { Bar, AreaClosed } from '@vx/shape';
-import { extent, max } from 'd3-array';
+import { scaleLinear, scaleBand } from '@vx/scale';
+import { Bar } from '@vx/shape';
 
-import { appleStock } from '@vx/mock-data';
+import { letterFrequency } from '@vx/mock-data';
 
-const BarChart = props => {
-  // mock data
-  const data = appleStock;
+// We'll use some mock data from `@vx/mock-data` for this.
+const data = letterFrequency;
 
-  // chart dimensions
-  const width = 750;
-  const height = 400;
+// Define the graph dimensions and margins
+const width = 500;
+const height = 500;
+const margin = { top: 20, bottom: 60, left: 60, right: 20 };
 
-  // bounds and margins
-  const margin = {
-    top: 60,
-    bottom: 60,
-    left: 80,
-    right: 80,
-  };
-  const xMax = width - margin.left - margin.right;
-  const yMax = height - margin.top - margin.bottom;
+// Then we'll create some bounds
+const xMax = width - margin.left - margin.right;
+const yMax = height - margin.top - margin.bottom;
 
-  // define x and y (accessors)
-  const x = d => new Date(d.date); // d.date is unix timestamps
-  const y = d => d.close;
+// We'll make some helpers to get at the data we want
+const x = d => d.letter;
+const y = d => +d.frequency * 100;
 
-  // x scale
-  const xScale = scaleTime({
-    // domain = input scale
-    // extent takes an array of our x or y functions (accessors) and returns the min/max
-    // like extent(data, d => d.x)
-    domain: extent(data, x),
-    // range = output scale
-    range: [0, xMax],
-  });
+// And then scale the graph by our data
+const xScale = scaleBand({
+  rangeRound: [0, xMax],
+  domain: data.map(x),
+  padding: 0.4,
+});
 
-  const yScale = scaleLinear({
-    range: [yMax, 0],
-    domain: [0, max(data, y)],
-  });
+const yScale = scaleLinear({
+  rangeRound: [yMax, 0],
+  domain: [0, Math.max(...data.map(y))],
+});
 
-  const chart = (
-    <svg width={width} height={height}>
-      <Group top={margin.top} left={margin.left}>
-        <AreaClosed
-          data={data}
-          xScale={xScale}
-          yScale={yScale}
-          x={x}
-          y={y}
-          fill={'url("#gradient")'}
-          stroke={''}
-        />
+// Compose together the scale and accessor functions to get point functions
+const compose = (scale, accessor) => data => scale(accessor(data));
+const xPoint = compose(
+  xScale,
+  x,
+);
+const yPoint = compose(
+  yScale,
+  y,
+);
 
-        <AxisLeft
-          scale={yScale}
-          top={0}
-          left={0}
-          label={'Close Price ($)'}
-          stroke={'#1b1a1e'}
-          tickTextFill={'#1b1a1e'}
-        />
+// Finally we'll embed it all in an SVG
+const BarChart = props => (
+  <svg width={width} height={height}>
+    <Group top={margin.top} left={margin.left}>
+      {data.map((d, i) => {
+        const barHeight = yMax - yPoint(d);
+        return (
+          <Group key={`bar-${i}`}>
+            <Bar
+              x={xPoint(d)}
+              y={yMax - barHeight}
+              height={barHeight}
+              width={xScale.bandwidth()}
+              fill="url(#gradient)"
+            />
+          </Group>
+        );
+      })}
 
-        <AxisBottom
-          scale={xScale}
-          top={yMax}
-          label={'Years'}
-          stroke={'#1b1a1e'}
-          tickTextFill={'#1b1a1e'}
-        />
+      <AxisLeft
+        scale={yScale}
+        top={0}
+        left={0}
+        label={'Frequency'}
+        stroke={'#1b1a1e'}
+        tickTextFill={'#1b1a1e'}
+      />
 
-        <LinearGradient from="#fbc2eb" to="#a6c1ee" id="gradient" />
-      </Group>
-    </svg>
-  );
-
-  return chart;
-};
+      <AxisBottom
+        scale={xScale}
+        top={yMax}
+        label={'Letters'}
+        stroke={'#1b1a1e'}
+        tickTextFill={'#1b1a1e'}
+      />
+      <GradientOrangeRed id="gradient" />
+    </Group>
+  </svg>
+);
 
 export default BarChart;
