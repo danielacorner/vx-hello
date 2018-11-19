@@ -8,10 +8,15 @@ const NavWrapper = styled.div`
     width: 90%;
     border-bottom: 2px solid black;
     display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     a {
       text-decoration: none;
+      &:hover,
+      &[aria-current='page'] {
+        text-decoration: underline;
+        color: steelblue;
+      }
     }
   }
 `;
